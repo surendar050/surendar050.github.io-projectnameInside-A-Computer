@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Inside a Computer – An Interactive Journey Through Core Components" />
+  <title>Inside a Computer – An Interactive Journey</title>
+
+  <!-- Google Fonts: Orbitron (display) + Rajdhani (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="dark" class="loading">
+
+  <!-- ============================================================
+       LOADING SCREEN
+  ============================================================ -->
+  <div id="loader" role="status" aria-label="Loading experience">
+    <div class="loader-inner">
+      <svg class="loader-circuit" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="80" class="circuit-ring ring-1"/>
+        <circle cx="100" cy="100" r="60" class="circuit-ring ring-2"/>
+        <circle cx="100" cy="100" r="40" class="circuit-ring ring-3"/>
+        <path d="M100 20 L100 50 M100 150 L100 180 M20 100 L50 100 M150 100 L180 100" class="circuit-cross"/>
+        <circle cx="100" cy="100" r="8" class="circuit-core"/>
+      </svg>
+      <div class="loader-text">
+        <span class="loader-label">INITIALIZING</span>
+        <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+        <span class="loader-percent" id="loaderPercent">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="4" y="4" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <rect x="9" y="9" width="10" height="10" rx="1" fill="currentColor" opacity="0.5"/>
+        <line x1="14" y1="0" x2="14" y2="4" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="14" y1="24" x2="14" y2="28" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="0" y1="14" x2="4" y2="14" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="24" y1="14" x2="28" y2="14" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span>INSIDE THE MACHINE</span>
+    </div>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#intro"    aria-label="Go to Introduction">INTRO</a></li>
+      <li><a href="#cpu"      aria-label="Go to CPU section">CPU</a></li>
+      <li><a href="#memory"   aria-label="Go to Memory section">RAM</a></li>
+      <li><a href="#gpu"      aria-label="Go to GPU section">GPU</a></li>
+      <li><a href="#storage"  aria-label="Go to Storage section">STORAGE</a></li>
+      <li><a href="#network"  aria-label="Go to Network section">NETWORK</a></li>
+      <li><a href="#together" aria-label="Go to Together section">TOGETHER</a></li>
+    </ul>
+
+    <div class="nav-controls">
+      <!-- Dark/Light mode toggle -->
+      <button id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle theme">
+        <span class="theme-icon theme-dark">☽</span>
+        <span class="theme-icon theme-light">☀</span>
+      </button>
+
+      <!-- Level toggle -->
+      <button id="levelToggle" aria-label="Toggle explanation level" title="Toggle Basic/Advanced">
+        <span id="levelLabel">BASIC</span>
+      </button>
+
+      <!-- Mobile hamburger -->
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu overlay -->
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Navigation menu" aria-hidden="true">
+    <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">✕</button>
+    <ul role="list">
+      <li><a href="#intro"    class="mobile-link">INTRO</a></li>
+      <li><a href="#cpu"      class="mobile-link">CPU</a></li>
+      <li><a href="#memory"   class="mobile-link">RAM</a></li>
+      <li><a href="#gpu"      class="mobile-link">GPU</a></li>
+      <li><a href="#storage"  class="mobile-link">STORAGE</a></li>
+      <li><a href="#network"  class="mobile-link">NETWORK</a></li>
+      <li><a href="#together" class="mobile-link">TOGETHER</a></li>
+    </ul>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="scroll-progress" id="scrollProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+
+  <!-- ============================================================
+       SECTION 1 – HERO
+  ============================================================ -->
+  <section id="hero" class="section-hero" aria-label="Hero">
+    <!-- Particle canvas -->
+    <canvas id="heroCanvas" aria-hidden="true"></canvas>
+
+    <!-- Floating circuit lines (decorative SVG) -->
+    <svg class="hero-circuits" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g class="circuit-group-1">
+        <polyline points="0,200 120,200 180,140 400,140" class="circuit-line cl-1"/>
+        <polyline points="400,140 460,140 460,80 620,80" class="circuit-line cl-2"/>
+        <circle cx="400" cy="140" r="5" class="circuit-dot"/>
+        <circle cx="460" cy="80" r="3" class="circuit-dot"/>
+      </g>
+      <g class="circuit-group-2">
+        <polyline points="1200,400 1080,400 1020,460 800,460" class="circuit-line cl-3"/>
+        <polyline points="800,460 740,460 740,520 580,520" class="circuit-line cl-4"/>
+        <circle cx="800" cy="460" r="5" class="circuit-dot"/>
+        <circle cx="740" cy="520" r="3" class="circuit-dot"/>
+      </g>
+      <g class="circuit-group-3">
+        <polyline points="0,600 200,600 260,540 500,540" class="circuit-line cl-5"/>
+        <circle cx="260" cy="540" r="4" class="circuit-dot"/>
+      </g>
+    </svg>
+
+    <div class="hero-content" data-parallax="0.3">
+      <div class="hero-badge">INTERACTIVE JOURNEY</div>
+      <h1 class="hero-title">
+        <span class="hero-word" aria-hidden="true">INSIDE</span>
+        <span class="hero-word gradient-text">A COMPUTER</span>
+      </h1>
+      <p class="hero-subtitle">Scroll to begin your journey through the mind of a machine</p>
+      <div class="hero-cta">
+        <div class="cta-pulse"></div>
+        <span class="cta-text">SCROLL DOWN</span>
+        <div class="cta-arrow">
+          <svg viewBox="0 0 24 40" width="24" height="40" aria-hidden="true">
+            <line x1="12" y1="0" x2="12" y2="30" stroke="currentColor" stroke-width="2"/>
+            <polyline points="4,22 12,32 20,22" fill="none" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating component labels around hero -->
+    <div class="hero-floaters" aria-hidden="true">
+      <div class="floater f1">CPU</div>
+      <div class="floater f2">RAM</div>
+      <div class="floater f3">GPU</div>
+      <div class="floater f4">SSD</div>
+      <div class="floater f5">NET</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 2 – INTRODUCTION
+  ============================================================ -->
+  <section id="intro" class="section-intro reveal-section" aria-label="Introduction">
+    <div class="container">
+      <div class="section-header" data-reveal="fade-up">
+        <span class="section-tag">CHAPTER 01</span>
+        <h2>What Is a Computer?</h2>
+        <p class="section-lead">Think of it like a <strong class="highlight">smart city</strong> — a perfect urban system where every part has a role.</p>
+      </div>
+
+      <!-- City Analogy Grid -->
+      <div class="city-grid" data-reveal="fade-up" data-reveal-delay="200">
+        <div class="city-card" tabindex="0" aria-label="CPU: The City Hall">
+          <div class="city-icon" aria-hidden="true">🏛️</div>
+          <div class="city-label">CITY HALL</div>
+          <div class="city-component">CPU</div>
+          <p>Makes every decision, processes all requests</p>
+        </div>
+        <div class="city-card" tabindex="0" aria-label="RAM: The Workspace">
+          <div class="city-icon" aria-hidden="true">📋</div>
+          <div class="city-label">WORKSPACE</div>
+          <div class="city-component">RAM</div>
+          <p>Active desks where current work happens</p>
+        </div>
+        <div class="city-card" tabindex="0" aria-label="GPU: The Art Studio">
+          <div class="city-icon" aria-hidden="true">🎨</div>
+          <div class="city-label">ART STUDIO</div>
+          <div class="city-component">GPU</div>
+          <p>Renders everything you see on screen</p>
+        </div>
+        <div class="city-card" tabindex="0" aria-label="Storage: The Library">
+          <div class="city-icon" aria-hidden="true">📚</div>
+          <div class="city-label">GRAND LIBRARY</div>
+          <div class="city-component">STORAGE</div>
+          <p>Holds everything permanently, even when shut down</p>
+        </div>
+        <div class="city-card" tabindex="0" aria-label="Network: The Highway">
+          <div class="city-icon" aria-hidden="true">🛣️</div>
+          <div class="city-label">HIGHWAY</div>
+          <div class="city-component">NETWORK</div>
+          <p>Connects your city to the entire world</p>
+        </div>
+      </div>
+
+      <!-- Animated "City" SVG illustration -->
+      <div class="city-illustration" data-reveal="fade-up" data-reveal-delay="400" aria-hidden="true">
+        <svg viewBox="0 0 800 280" class="city-svg">
+          <!-- Ground -->
+          <rect x="0" y="240" width="800" height="40" fill="var(--color-surface)"/>
+          <!-- Buildings -->
+          <g class="building-group">
+            <!-- CPU building (tallest) -->
+            <rect x="80" y="80" width="80" height="160" rx="4" class="building cpu-building"/>
+            <rect x="88" y="88" width="14" height="14" rx="2" class="window w-on" style="animation-delay:0.1s"/>
+            <rect x="106" y="88" width="14" height="14" rx="2" class="window w-on" style="animation-delay:0.3s"/>
+            <rect x="124" y="88" width="14" height="14" rx="2" class="window w-off"/>
+            <rect x="88" y="110" width="14" height="14" rx="2" class="window w-on" style="animation-delay:0.5s"/>
+            <rect x="106" y="110" width="14" height="14" rx="2" class="window w-off"/>
+            <rect x="124" y="110" width="14" height="14" rx="2" class="window w-on" style="animation-delay:0.2s"/>
+            <text x="120" y="72" class="building-label">CPU</text>
+
+            <!-- RAM building -->
+            <rect x="220" y="120" width="70" height="120" rx="4" class="building ram-building"/>
+            <rect x="228" y="128" width="12" height="12" rx="2" class="window w-on" style="animation-delay:0.4s"/>
+            <rect x="244" y="128" width="12" height="12" rx="2" class="window w-on" style="animation-delay:0.1s"/>
+            <rect x="260" y="128" width="12" height="12" rx="2" class="window w-off"/>
+            <text x="255" y="112" class="building-label">RAM</text>
+
+            <!-- GPU building -->
+            <rect x="360" y="100" width="90" height="140" rx="4" class="building gpu-building"/>
+            <rect x="368" y="110" width="14" height="14" rx="2" class="window w-on" style="animation-delay:0.6s"/>
+            <rect x="386" y="110" width="14" height="14" rx="2" class="window w-on" style="animation-delay:0.2s"/>
+            <rect x="404" y="110" width="14" height="14" rx="2" class="window w-on" style="animation-delay:0.8s"/>
+            <text x="405" y="92" class="building-label">GPU</text>
+
+            <!-- Storage building -->
+            <rect x="520" y="130" width="75" height="110" rx="4" class="building storage-building"/>
+            <rect x="528" y="140" width="12" height="12" rx="2" class="window w-on" style="animation-delay:0.3s"/>
+            <rect x="544" y="140" width="12" height="12" rx="2" class="window w-off"/>
+            <text x="558" y="122" class="building-label">SSD</text>
+
+            <!-- Network tower -->
+            <rect x="670" y="90" width="50" height="150" rx="4" class="building net-building"/>
+            <polygon points="695,60 680,90 710,90" class="tower-top"/>
+            <line x1="695" y1="58" x2="695" y2="48" class="antenna"/>
+            <text x="695" y="82" class="building-label">NET</text>
+          </g>
+
+          <!-- Data flow between buildings -->
+          <g class="data-flows">
+            <line x1="162" y1="160" x2="218" y2="160" class="data-wire"/>
+            <line x1="292" y1="160" x2="358" y2="160" class="data-wire"/>
+            <line x1="452" y1="160" x2="518" y2="160" class="data-wire"/>
+            <line x1="597" y1="160" x2="668" y2="160" class="data-wire"/>
+            <!-- Animated packets -->
+            <circle r="4" class="data-packet p1"><animateMotion path="M162,160 L218,160" dur="1.4s" repeatCount="indefinite"/></circle>
+            <circle r="4" class="data-packet p2"><animateMotion path="M292,160 L358,160" dur="1.2s" repeatCount="indefinite" begin="0.3s"/></circle>
+            <circle r="4" class="data-packet p3"><animateMotion path="M452,160 L518,160" dur="1.6s" repeatCount="indefinite" begin="0.6s"/></circle>
+            <circle r="4" class="data-packet p4"><animateMotion path="M597,160 L668,160" dur="1.3s" repeatCount="indefinite" begin="0.9s"/></circle>
+          </g>
+
+          <!-- Road / ground markings -->
+          <line x1="0" y1="242" x2="800" y2="242" stroke="var(--color-border)" stroke-width="1" stroke-dasharray="20 10"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3 – EXPLORATION (5 components)
+  ============================================================ -->
+
+  <!-- Level indicator banner (sticky within component sections) -->
+  <div class="level-banner" aria-live="polite" id="levelBanner">
+    <span>Viewing: </span><strong id="levelBannerLabel">Basic Mode</strong>
+    <span> — click the button in the nav to switch</span>
+  </div>
+
+  <!-- === CPU === -->
+  <section id="cpu" class="component-section reveal-section" data-component="cpu" aria-label="CPU Section">
+    <div class="component-bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="component-layout">
+
+        <!-- Left: Text -->
+        <div class="component-text" data-reveal="fade-right">
+          <span class="section-tag">COMPONENT 01</span>
+          <h2 class="component-title">
+            <span class="component-icon-inline" aria-hidden="true">⚡</span>
+            The CPU
+          </h2>
+          <p class="component-tagline">The Brain of the Machine</p>
+
+          <div class="explanation basic-content">
+            <p>Imagine the CPU as the city's <strong>Mayor</strong> — every decision, calculation, and instruction flows through this one authority. When you press a key, click the mouse, or run an app, the CPU processes millions of tiny instructions per second to make it happen.</p>
+            <p>Modern CPUs have multiple <strong>cores</strong> — like having several deputy mayors, each handling different tasks simultaneously.</p>
+          </div>
+          <div class="explanation advanced-content hidden">
+            <p>The CPU (Central Processing Unit) executes instructions using the <strong>Fetch-Decode-Execute cycle</strong>. It fetches an instruction from RAM, decodes its binary opcode, and executes the operation using the ALU (Arithmetic Logic Unit) or FPU (Floating Point Unit).</p>
+            <p>Modern CPUs use <strong>pipelining</strong>, <strong>out-of-order execution</strong>, and <strong>branch prediction</strong> to maximize instruction throughput. Clock speeds (GHz) measure cycles per second, while IPC (Instructions Per Cycle) determines real-world performance.</p>
+          </div>
+
+          <!-- Specs comparison slider -->
+          <div class="perf-slider-wrap" aria-label="CPU speed comparison">
+            <label class="perf-label">CPU Speed: <span id="cpuSpeedLabel">3.0 GHz</span></label>
+            <input type="range" id="cpuSlider" min="1" max="5" value="3" step="0.1" class="perf-slider" aria-label="CPU speed in GHz"/>
+            <div class="perf-bar">
+              <div class="perf-fill" id="cpuPerfFill" style="width:50%"></div>
+            </div>
+          </div>
+
+          <!-- Fact chips -->
+          <div class="fact-chips">
+            <span class="chip">🔥 Up to 5.8 GHz</span>
+            <span class="chip">⚡ 24 Cores</span>
+            <span class="chip">🧠 Billions of transistors</span>
+          </div>
+        </div>
+
+        <!-- Right: Interactive CPU diagram -->
+        <div class="component-visual" data-reveal="fade-left">
+          <div class="cpu-diagram" role="img" aria-label="Interactive CPU diagram">
+            <!-- CPU chip illustration -->
+            <div class="cpu-chip">
+              <div class="cpu-label">CPU DIE</div>
+              <div class="cpu-cores-grid" id="cpuCoresGrid">
+                <!-- Cores injected by JS -->
+              </div>
+              <div class="cpu-cache">
+                <div class="cache-label">L3 CACHE</div>
+                <div class="cache-bar" id="cacheActivity"></div>
+              </div>
+            </div>
+            <!-- Heat indicator -->
+            <div class="cpu-heat" id="cpuHeat" aria-label="CPU temperature indicator">
+              <div class="heat-label">TEMP</div>
+              <div class="heat-bar"><div class="heat-fill" id="heatFill"></div></div>
+            </div>
+          </div>
+          <!-- Expandable detail panel -->
+          <button class="expand-btn" aria-expanded="false" data-target="cpuExpandPanel">
+            <span>See how instructions flow</span> <span class="expand-arrow">↓</span>
+          </button>
+          <div class="expand-panel" id="cpuExpandPanel" aria-hidden="true">
+            <div class="flow-steps">
+              <div class="flow-step">
+                <div class="step-num">1</div>
+                <div class="step-text"><strong>FETCH</strong><br/>Grab instruction from RAM</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step">
+                <div class="step-num">2</div>
+                <div class="step-text"><strong>DECODE</strong><br/>Translate the binary instruction</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step">
+                <div class="step-num">3</div>
+                <div class="step-text"><strong>EXECUTE</strong><br/>Perform the operation</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step">
+                <div class="step-num">4</div>
+                <div class="step-text"><strong>WRITE</strong><br/>Store result back to memory</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === MEMORY / RAM === -->
+  <section id="memory" class="component-section reveal-section" data-component="memory" aria-label="RAM Section">
+    <div class="component-bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="component-layout reverse">
+
+        <!-- Left: Visual -->
+        <div class="component-visual" data-reveal="fade-right">
+          <div class="ram-diagram" role="img" aria-label="RAM memory visualization">
+            <div class="ram-stick">
+              <div class="ram-label">DDR5 RAM</div>
+              <div class="ram-cells" id="ramCells">
+                <!-- Cells injected by JS -->
+              </div>
+              <div class="ram-pins" aria-hidden="true">
+                <div class="pin-row" id="ramPins"></div>
+              </div>
+            </div>
+            <div class="ram-gauge">
+              <div class="gauge-label">MEMORY USAGE</div>
+              <div class="gauge-track">
+                <div class="gauge-fill" id="ramGaugeFill"></div>
+              </div>
+              <div class="gauge-value" id="ramGaugeValue">0 GB / 16 GB</div>
+            </div>
+          </div>
+
+          <button class="expand-btn" aria-expanded="false" data-target="ramExpandPanel">
+            <span>Understand RAM vs Hard Drive</span> <span class="expand-arrow">↓</span>
+          </button>
+          <div class="expand-panel" id="ramExpandPanel" aria-hidden="true">
+            <div class="comparison-table">
+              <div class="compare-col">
+                <div class="compare-header ram-header">RAM</div>
+                <div class="compare-row">⚡ Extremely Fast</div>
+                <div class="compare-row">💨 Volatile (lost on power-off)</div>
+                <div class="compare-row">📏 8–64 GB typical</div>
+              </div>
+              <div class="compare-col">
+                <div class="compare-header storage-header">STORAGE</div>
+                <div class="compare-row">🐢 Slower (but fast SSDs exist)</div>
+                <div class="compare-row">🔒 Persistent (data stays)</div>
+                <div class="compare-row">📦 256 GB–8 TB typical</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Text -->
+        <div class="component-text" data-reveal="fade-left">
+          <span class="section-tag">COMPONENT 02</span>
+          <h2 class="component-title">
+            <span class="component-icon-inline" aria-hidden="true">🧠</span>
+            RAM
+          </h2>
+          <p class="component-tagline">Your Computer's Short-Term Memory</p>
+
+          <div class="explanation basic-content">
+            <p>Think of RAM as your <strong>office desk</strong>. When you're working, you lay out all the papers, folders, and tools you need right now. The bigger your desk, the more you can work on simultaneously.</p>
+            <p>When you close an application, those "papers" are swept off the desk — the data is gone. That's why RAM is called <strong>volatile memory</strong>.</p>
+          </div>
+          <div class="explanation advanced-content hidden">
+            <p>RAM (Random Access Memory) provides the CPU with ultra-fast, byte-addressable working memory. Modern DDR5 modules operate at 4800–6400 MT/s with 64-bit bus widths, offering ~50 GB/s bandwidth — critical for feeding data-hungry CPUs.</p>
+            <p>The CPU's <strong>memory controller</strong> manages address mapping, refresh cycles (DRAM loses charge ~every 64ms), and arbitrates between multiple cores. Cache hierarchy (L1/L2/L3) bridges the speed gap between CPU registers and DRAM latency.</p>
+          </div>
+
+          <div class="perf-slider-wrap" aria-label="RAM usage simulation">
+            <label class="perf-label">Open Applications: <span id="ramAppsLabel">4 apps</span></label>
+            <input type="range" id="ramSlider" min="1" max="10" value="4" class="perf-slider" aria-label="Number of open applications"/>
+            <div class="perf-bar">
+              <div class="perf-fill" id="ramPerfFill" style="width:40%"></div>
+            </div>
+          </div>
+
+          <div class="fact-chips">
+            <span class="chip">🚀 DDR5 @ 6400 MT/s</span>
+            <span class="chip">📐 Up to 256 GB</span>
+            <span class="chip">⏱️ ~10 ns latency</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === GPU === -->
+  <section id="gpu" class="component-section reveal-section" data-component="gpu" aria-label="GPU Section">
+    <div class="component-bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="component-layout">
+        <div class="component-text" data-reveal="fade-right">
+          <span class="section-tag">COMPONENT 03</span>
+          <h2 class="component-title">
+            <span class="component-icon-inline" aria-hidden="true">🎨</span>
+            The GPU
+          </h2>
+          <p class="component-tagline">The Visual Artist of Your System</p>
+
+          <div class="explanation basic-content">
+            <p>If the CPU is the mayor making high-level decisions, the GPU is a <strong>massive team of artists</strong> — thousands of them — all painting tiny parts of your screen simultaneously.</p>
+            <p>Every pixel you see? The GPU calculated its color. From YouTube videos to 3D games to AI image generation — the GPU does it all in parallel.</p>
+          </div>
+          <div class="explanation advanced-content hidden">
+            <p>A GPU (Graphics Processing Unit) contains thousands of small <strong>shader cores</strong> optimized for parallel floating-point math. Unlike the CPU's few powerful cores, a GPU like the RTX 4090 has 16,384 CUDA cores — ideal for the same operation applied across millions of pixels.</p>
+            <p>Modern GPUs also excel at <strong>tensor operations</strong>, making them indispensable for deep learning. The rendering pipeline: vertex shader → rasterization → fragment shader → framebuffer output — all happening 60+ times per second.</p>
+          </div>
+
+          <div class="perf-slider-wrap" aria-label="GPU resolution performance">
+            <label class="perf-label">Resolution: <span id="gpuResLabel">1080p</span></label>
+            <input type="range" id="gpuSlider" min="1" max="4" value="2" class="perf-slider" aria-label="Screen resolution"/>
+            <div class="perf-bar">
+              <div class="perf-fill" id="gpuPerfFill" style="width:25%"></div>
+            </div>
+          </div>
+
+          <div class="fact-chips">
+            <span class="chip">🎮 16,384 CUDA cores</span>
+            <span class="chip">🖼️ 24 GB VRAM</span>
+            <span class="chip">⚡ 82.6 TFLOPS</span>
+          </div>
+        </div>
+
+        <div class="component-visual" data-reveal="fade-left">
+          <div class="gpu-diagram" role="img" aria-label="GPU rendering visualization">
+            <canvas id="gpuCanvas" width="340" height="220" aria-label="GPU pixel rendering animation"></canvas>
+            <div class="gpu-info">
+              <div class="gpu-stat">
+                <span class="stat-label">CORES ACTIVE</span>
+                <span class="stat-value" id="gpuCoresActive">0</span>
+              </div>
+              <div class="gpu-stat">
+                <span class="stat-label">FPS</span>
+                <span class="stat-value" id="gpuFps">60</span>
+              </div>
+              <div class="gpu-stat">
+                <span class="stat-label">VRAM</span>
+                <span class="stat-value" id="gpuVram">6.2 GB</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="expand-btn" aria-expanded="false" data-target="gpuExpandPanel">
+            <span>CPU vs GPU: Why both?</span> <span class="expand-arrow">↓</span>
+          </button>
+          <div class="expand-panel" id="gpuExpandPanel" aria-hidden="true">
+            <div class="vs-layout">
+              <div class="vs-col">
+                <strong>CPU: The Chess Master</strong>
+                <p>Few powerful cores, handles complex sequential logic, great for decision-making</p>
+              </div>
+              <div class="vs-divider">VS</div>
+              <div class="vs-col">
+                <strong>GPU: The Crowd</strong>
+                <p>Thousands of simpler cores, handles repetitive parallel tasks, great for visuals and AI</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === STORAGE === -->
+  <section id="storage" class="component-section reveal-section" data-component="storage" aria-label="Storage Section">
+    <div class="component-bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="component-layout reverse">
+        <div class="component-visual" data-reveal="fade-right">
+          <div class="storage-diagram" role="img" aria-label="Storage visualization">
+            <div class="storage-types">
+              <div class="storage-type hdd" tabindex="0" aria-label="HDD Hard Drive details">
+                <div class="storage-icon" aria-hidden="true">💿</div>
+                <div class="storage-name">HDD</div>
+                <div class="storage-speed">150 MB/s</div>
+                <div class="storage-bar"><div class="sbar-fill hdd-fill"></div></div>
+                <div class="storage-note">Spinning magnetic disk</div>
+              </div>
+              <div class="storage-type ssd" tabindex="0" aria-label="SSD Solid State Drive details">
+                <div class="storage-icon" aria-hidden="true">⚡</div>
+                <div class="storage-name">SATA SSD</div>
+                <div class="storage-speed">550 MB/s</div>
+                <div class="storage-bar"><div class="sbar-fill ssd-fill"></div></div>
+                <div class="storage-note">Flash memory chips</div>
+              </div>
+              <div class="storage-type nvme" tabindex="0" aria-label="NVMe SSD details">
+                <div class="storage-icon" aria-hidden="true">🚀</div>
+                <div class="storage-name">NVMe SSD</div>
+                <div class="storage-speed">7000 MB/s</div>
+                <div class="storage-bar"><div class="sbar-fill nvme-fill"></div></div>
+                <div class="storage-note">PCIe direct bus</div>
+              </div>
+            </div>
+
+            <div class="storage-usage">
+              <div class="su-label">DISK USAGE</div>
+              <div class="su-visual" id="storageVisual">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+          </div>
+
+          <button class="expand-btn" aria-expanded="false" data-target="storageExpandPanel">
+            <span>How data is stored</span> <span class="expand-arrow">↓</span>
+          </button>
+          <div class="expand-panel" id="storageExpandPanel" aria-hidden="true">
+            <p>Data is encoded in <strong>binary (0s and 1s)</strong>. In an HDD, tiny magnetic regions are flipped to represent bits. In an SSD, electrical charges are trapped in floating-gate transistors in NAND flash cells.</p>
+            <p>An NVMe SSD communicates via the PCIe bus — the same high-speed lane your GPU uses — bypassing the slower SATA controller entirely.</p>
+          </div>
+        </div>
+
+        <div class="component-text" data-reveal="fade-left">
+          <span class="section-tag">COMPONENT 04</span>
+          <h2 class="component-title">
+            <span class="component-icon-inline" aria-hidden="true">📦</span>
+            Storage
+          </h2>
+          <p class="component-tagline">Your Computer's Long-Term Memory</p>
+
+          <div class="explanation basic-content">
+            <p>Think of storage as your computer's <strong>bookshelf</strong>. Everything is saved here — your photos, documents, operating system, and apps — and it all stays even when you turn the computer off.</p>
+            <p>SSDs are like shelves with instant-access drawers; HDDs are like old filing cabinets where you have to wait for the drawer to roll out.</p>
+          </div>
+          <div class="explanation advanced-content hidden">
+            <p>NAND flash memory stores data using floating-gate MOSFETs. SLC (1 bit/cell) is fastest; MLC (2-bit), TLC (3-bit), and QLC (4-bit) trade endurance and speed for higher density. NVMe's PCIe 4.0 interface delivers 64 GB/s theoretical bandwidth.</p>
+            <p>The filesystem (NTFS, ext4, APFS) manages file allocation, journaling, and wear leveling. The NVMe controller's built-in <strong>FTL (Flash Translation Layer)</strong> handles block mapping, garbage collection, and bad block management.</p>
+          </div>
+
+          <div class="fact-chips">
+            <span class="chip">💾 Up to 8 TB SSD</span>
+            <span class="chip">🚀 7 GB/s NVMe</span>
+            <span class="chip">🔋 No moving parts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === NETWORK === -->
+  <section id="network" class="component-section reveal-section" data-component="network" aria-label="Network Section">
+    <div class="component-bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="component-layout">
+        <div class="component-text" data-reveal="fade-right">
+          <span class="section-tag">COMPONENT 05</span>
+          <h2 class="component-title">
+            <span class="component-icon-inline" aria-hidden="true">🌐</span>
+            Network
+          </h2>
+          <p class="component-tagline">The World's Nervous System</p>
+
+          <div class="explanation basic-content">
+            <p>If your computer is a city, the network is the <strong>highway system connecting every city on Earth</strong>. Data travels as tiny packets — like parcels on trucks — switching routes through thousands of routers to reach you in milliseconds.</p>
+            <p>When you load a webpage, hundreds of these packets bounce around the globe and reassemble perfectly on your screen.</p>
+          </div>
+          <div class="explanation advanced-content hidden">
+            <p>The TCP/IP stack abstracts networking into layers: Physical → Data Link → Network → Transport → Application. Each packet carries a header with source IP, destination IP, TTL, and checksum. TCP provides reliable delivery with handshaking and retransmission; UDP sacrifices reliability for speed (used in video calls, gaming).</p>
+            <p>Modern Ethernet (10GbE) uses differential signaling over twisted pairs. Wi-Fi 6E (802.11ax) operates in the 6 GHz band with OFDMA and 160 MHz channels for multi-gigabit speeds. BGP routes packets across ASes (Autonomous Systems) on the global internet backbone.</p>
+          </div>
+
+          <div class="perf-slider-wrap" aria-label="Network speed comparison">
+            <label class="perf-label">Speed: <span id="netSpeedLabel">100 Mbps</span></label>
+            <input type="range" id="netSlider" min="1" max="5" value="2" class="perf-slider" aria-label="Network speed"/>
+            <div class="perf-bar">
+              <div class="perf-fill" id="netPerfFill" style="width:20%"></div>
+            </div>
+          </div>
+
+          <div class="fact-chips">
+            <span class="chip">🌍 300,000 km/s light speed</span>
+            <span class="chip">📡 Wi-Fi 6E: 9.6 Gbps</span>
+            <span class="chip">🔗 40ms global ping</span>
+          </div>
+        </div>
+
+        <div class="component-visual" data-reveal="fade-left">
+          <div class="network-diagram" role="img" aria-label="Network packet flow visualization">
+            <canvas id="networkCanvas" width="340" height="260" aria-label="Network visualization"></canvas>
+            <div class="net-legend">
+              <span class="legend-dot router"></span><span>Router</span>
+              <span class="legend-dot server"></span><span>Server</span>
+              <span class="legend-dot device"></span><span>Device</span>
+            </div>
+          </div>
+
+          <button class="expand-btn" aria-expanded="false" data-target="netExpandPanel">
+            <span>Trace a data packet</span> <span class="expand-arrow">↓</span>
+          </button>
+          <div class="expand-panel" id="netExpandPanel" aria-hidden="true">
+            <div class="packet-trace">
+              <div class="trace-step">📱 Your Device</div>
+              <div class="trace-arrow">→</div>
+              <div class="trace-step">📶 Wi-Fi Router</div>
+              <div class="trace-arrow">→</div>
+              <div class="trace-step">🏢 ISP</div>
+              <div class="trace-arrow">→</div>
+              <div class="trace-step">🌐 Internet Backbone</div>
+              <div class="trace-arrow">→</div>
+              <div class="trace-step">🖥️ Web Server</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 4 – HOW THEY WORK TOGETHER
+  ============================================================ -->
+  <section id="together" class="section-together reveal-section" aria-label="How components work together">
+    <div class="container">
+      <div class="section-header" data-reveal="fade-up">
+        <span class="section-tag">CHAPTER 04</span>
+        <h2>The Orchestra at Work</h2>
+        <p class="section-lead">Every component plays its part. Together, they create the experience you call "using a computer."</p>
+      </div>
+
+      <!-- Mini simulation -->
+      <div class="simulation-wrap" data-reveal="fade-up" data-reveal-delay="200">
+        <div class="sim-title">
+          <h3>🎮 Mini Simulation</h3>
+          <p>Watch what happens inside your computer when you open an app</p>
+        </div>
+
+        <div class="sim-controls">
+          <button class="sim-btn" id="simOpenApp" aria-label="Simulate opening an app">
+            Open an App
+          </button>
+          <button class="sim-btn" id="simBrowse" aria-label="Simulate browsing the web">
+            Browse the Web
+          </button>
+          <button class="sim-btn" id="simGame" aria-label="Simulate playing a game">
+            Play a Game
+          </button>
+        </div>
+
+        <div class="sim-stage" aria-live="polite" aria-label="Simulation display">
+          <!-- Component nodes -->
+          <div class="sim-nodes">
+            <div class="sim-node" id="simCpu" data-label="CPU" aria-label="CPU node">
+              <div class="node-icon">⚡</div>
+              <div class="node-label">CPU</div>
+              <div class="node-activity" id="cpuActivity"></div>
+            </div>
+            <div class="sim-node" id="simRam" data-label="RAM" aria-label="RAM node">
+              <div class="node-icon">🧠</div>
+              <div class="node-label">RAM</div>
+              <div class="node-activity" id="ramActivity"></div>
+            </div>
+            <div class="sim-node" id="simGpu" data-label="GPU" aria-label="GPU node">
+              <div class="node-icon">🎨</div>
+              <div class="node-label">GPU</div>
+              <div class="node-activity" id="gpuActivity"></div>
+            </div>
+            <div class="sim-node" id="simSsd" data-label="SSD" aria-label="Storage node">
+              <div class="node-icon">📦</div>
+              <div class="node-label">SSD</div>
+              <div class="node-activity" id="ssdActivity"></div>
+            </div>
+            <div class="sim-node" id="simNet" data-label="NET" aria-label="Network node">
+              <div class="node-icon">🌐</div>
+              <div class="node-label">NET</div>
+              <div class="node-activity" id="netActivity"></div>
+            </div>
+          </div>
+
+          <!-- SVG connections between nodes -->
+          <svg class="sim-connections" id="simConnections" aria-hidden="true"></svg>
+
+          <!-- Activity log -->
+          <div class="sim-log" id="simLog" aria-live="polite" aria-label="Activity log">
+            <div class="log-placeholder">← Choose an action to see the magic happen</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow diagram: data moving between parts -->
+      <div class="together-flow" data-reveal="fade-up" data-reveal-delay="400">
+        <h3>Data Flow Architecture</h3>
+        <div class="flow-diagram" role="img" aria-label="Data flow diagram between computer components">
+          <svg viewBox="0 0 700 320" class="flow-svg">
+            <!-- Central bus -->
+            <rect x="200" y="130" width="300" height="60" rx="8" class="bus-rect"/>
+            <text x="350" y="166" class="bus-text">SYSTEM BUS</text>
+
+            <!-- Component boxes -->
+            <!-- CPU -->
+            <rect x="20" y="50" width="120" height="70" rx="8" class="flow-node cpu-node"/>
+            <text x="80" y="80" class="flow-node-text">CPU</text>
+            <text x="80" y="100" class="flow-node-sub">The Brain</text>
+            <!-- RAM -->
+            <rect x="290" y="20" width="120" height="70" rx="8" class="flow-node ram-node"/>
+            <text x="350" y="50" class="flow-node-text">RAM</text>
+            <text x="350" y="70" class="flow-node-sub">Active Memory</text>
+            <!-- GPU -->
+            <rect x="560" y="50" width="120" height="70" rx="8" class="flow-node gpu-node"/>
+            <text x="620" y="80" class="flow-node-text">GPU</text>
+            <text x="620" y="100" class="flow-node-sub">Visuals</text>
+            <!-- Storage -->
+            <rect x="20" y="220" width="120" height="70" rx="8" class="flow-node storage-node"/>
+            <text x="80" y="250" class="flow-node-text">SSD</text>
+            <text x="80" y="270" class="flow-node-sub">Long-term</text>
+            <!-- Network -->
+            <rect x="560" y="220" width="120" height="70" rx="8" class="flow-node net-node"/>
+            <text x="620" y="250" class="flow-node-text">NET</text>
+            <text x="620" y="270" class="flow-node-sub">Internet</text>
+
+            <!-- Connecting lines -->
+            <line x1="140" y1="85" x2="200" y2="155" class="flow-conn conn-cpu"/>
+            <line x1="350" y1="90" x2="350" y2="130" class="flow-conn conn-ram"/>
+            <line x1="560" y1="85" x2="500" y2="155" class="flow-conn conn-gpu"/>
+            <line x1="140" y1="255" x2="200" y2="165" class="flow-conn conn-storage"/>
+            <line x1="560" y1="255" x2="500" y2="165" class="flow-conn conn-net"/>
+
+            <!-- Animated data packets on connections -->
+            <circle r="5" class="flow-packet fp-cpu">
+              <animateMotion path="M140,85 L200,155" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+            </circle>
+            <circle r="5" class="flow-packet fp-ram">
+              <animateMotion path="M350,90 L350,130" dur="0.8s" repeatCount="indefinite" begin="0.2s"/>
+            </circle>
+            <circle r="5" class="flow-packet fp-gpu">
+              <animateMotion path="M560,85 L500,155" dur="1.3s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>
+            <circle r="5" class="flow-packet fp-storage">
+              <animateMotion path="M140,255 L200,165" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+            </circle>
+            <circle r="5" class="flow-packet fp-net">
+              <animateMotion path="M560,255 L500,165" dur="1.8s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 5 – CONCLUSION
+  ============================================================ -->
+  <section id="conclusion" class="section-conclusion reveal-section" aria-label="Conclusion">
+    <div class="conclusion-bg" aria-hidden="true">
+      <canvas id="conclusionCanvas"></canvas>
+    </div>
+    <div class="container">
+      <div class="conclusion-content" data-reveal="fade-up">
+        <div class="conclusion-icon" aria-hidden="true">🖥️</div>
+        <h2>You Now Understand Your Computer</h2>
+        <p class="conclusion-lead">You've traveled through the mind of a machine — from transistors to pixels, from RAM desks to network highways.</p>
+
+        <!-- Summary cards -->
+        <div class="summary-grid">
+          <div class="summary-card" tabindex="0">
+            <span class="sc-icon" aria-hidden="true">⚡</span>
+            <strong>CPU</strong>
+            <p>The decision maker. Processes billions of instructions per second.</p>
+          </div>
+          <div class="summary-card" tabindex="0">
+            <span class="sc-icon" aria-hidden="true">🧠</span>
+            <strong>RAM</strong>
+            <p>Your active workspace. Fast, temporary, essential.</p>
+          </div>
+          <div class="summary-card" tabindex="0">
+            <span class="sc-icon" aria-hidden="true">🎨</span>
+            <strong>GPU</strong>
+            <p>The parallel artist. Renders every pixel you see.</p>
+          </div>
+          <div class="summary-card" tabindex="0">
+            <span class="sc-icon" aria-hidden="true">📦</span>
+            <strong>Storage</strong>
+            <p>The grand library. Keeps everything forever.</p>
+          </div>
+          <div class="summary-card" tabindex="0">
+            <span class="sc-icon" aria-hidden="true">🌐</span>
+            <strong>Network</strong>
+            <p>The global highway. Connects your city to the world.</p>
+          </div>
+        </div>
+
+        <div class="conclusion-cta">
+          <button class="cta-primary" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Return to top">
+            ↑ Explore Again
+          </button>
+          <p class="cta-sub">Share this journey with someone who's curious</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer" role="contentinfo">
+    <p>Built with curiosity &amp; code. &copy; 2025 Inside A Computer.</p>
+  </footer>
+
+  <!-- Keyboard shortcut hint -->
+  <div class="keyboard-hint" id="keyboardHint" aria-hidden="true">
+    Press <kbd>T</kbd> to toggle theme · <kbd>L</kbd> for level · <kbd>↑↓</kbd> to scroll
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
